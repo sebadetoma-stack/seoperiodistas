@@ -274,6 +274,7 @@
           <span class="char-count" id="cc-nota">0 palabras</span>
         </div>
         <textarea id="input-nota" rows="10" placeholder="Pegá el texto completo de tu nota acá..." oninput="updateChar('nota')"></textarea>
+        <div style="padding: 0.5rem 1rem; background: var(--yellow-soft); border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--yellow);">💡 Marcá los subtítulos con ## (H2) o ### (H3). Ej: <code>## Por qué sube el dólar</code> · <code>### Qué dicen los expertos</code></div>
         <div class="keyword-row">
           <span class="keyword-label">Palabra clave:</span>
           <input class="keyword-input" id="kw-nota" type="text" placeholder="ej: reforma laboral argentina" />
@@ -587,6 +588,8 @@ Hablá como periodista, no como marketer. Contexto latinoamericano.`;
     const preview = nota.length > 2000 ? nota.substring(0,2000)+'...' : nota;
 
     const prompt = `Sos un experto en SEO para medios periodísticos hispanohablantes. Analizá esta nota y devolvé SOLO JSON válido, sin texto extra ni backticks.
+
+IMPORTANTE: El usuario puede marcar subtítulos con ## (H2) o ### (H3) al inicio de la línea, siguiendo la convención Markdown. Detectalos y evaluá su uso, cantidad y distribución en el análisis de estructura.
 
 ${tituloH ? `Título: "${tituloH}"` : ''}
 ${kw ? `Palabra clave: "${kw}"` : ''}
