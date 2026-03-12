@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEOdesk — Para periodistas</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f1ea;
+    --cream: #ede8de;
+    --accent: #c8432a;
+    --accent-soft: #f0ddd9;
+    --muted: #8a857c;
+    --green: #2a6e3f;
+    --green-soft: #d4ead9;
+    --yellow: #b8860b;
+    --yellow-soft: #fdf3d0;
+    --border: #d4cfc6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'IBM Plex Sans', sans-serif; background: var(--paper); color: var(--ink); min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* NAV */
+  nav {
+    border-bottom: 2px solid var(--ink);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 56px; background: var(--paper);
+    position: sticky; top: 0; z-index: 100;
+    flex-shrink: 0;
+  }
+  .logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 900; letter-spacing: -0.02em; }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 2rem; list-style: none; font-size: 0.82rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
+  .nav-links a { text-decoration: none; color: var(--muted); transition: color 0.15s; }
+  .nav-links a.active { color: var(--ink); border-bottom: 2px solid var(--accent); padding-bottom: 2px; }
+  .nav-right { display: flex; align-items: center; gap: 1rem; }
+  .badge-free { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; background: var(--cream); border: 1px solid var(--border); padding: 3px 8px; border-radius: 2px; color: var(--muted); }
+  .btn-upgrade { font-size: 0.8rem; font-weight: 600; background: var(--accent); color: white; border: none; padding: 7px 16px; cursor: pointer; letter-spacing: 0.03em; font-family: 'IBM Plex Sans', sans-serif; }
+
+  /* LAYOUT */
+  .app-layout { display: grid; grid-template-columns: 220px 1fr 300px; flex: 1; min-height: 0; }
+
+  /* SIDEBAR */
+  .sidebar { border-right: 1px solid var(--border); padding: 1.5rem 0; background: var(--cream); position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto; }
+  .sidebar-section { margin-bottom: 1.5rem; }
+  .sidebar-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding: 0 1.25rem; margin-bottom: 0.4rem; }
+  .sidebar-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 1.25rem; font-size: 0.875rem; cursor: pointer; color: var(--muted); border-left: 3px solid transparent; transition: all 0.15s; user-select: none; }
+  .sidebar-item:hover { background: rgba(0,0,0,0.04); color: var(--ink); }
+  .sidebar-item.active { background: var(--paper); color: var(--ink); font-weight: 600; border-left-color: var(--accent); }
+  .sidebar-item .icon { width: 18px; text-align: center; font-size: 0.9rem; flex-shrink: 0; }
+  .usage-bar { margin: 0.5rem 1.25rem 0; }
+  .usage-text { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace; }
+  .bar-track { height: 4px; background: var(--border); border-radius: 2px; }
+  .bar-fill { height: 4px; background: var(--accent); border-radius: 2px; width: 33%; }
+
+  /* MAIN */
+  .main { padding: 2rem 2.5rem; overflow-y: auto; }
+  .page-header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.75rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+  .page-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; }
+  .page-subtitle { font-size: 0.85rem; color: var(--muted); }
+
+  /* TABS */
+  .tabs { display: flex; gap: 0; margin-bottom: 1.75rem; border-bottom: 2px solid var(--border); }
+  .tab { padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; user-select: none; }
+  .tab.active { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+  .tab:hover:not(.active) { color: var(--ink); }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* INPUT */
+  .input-section { background: white; border: 1px solid var(--border); margin-bottom: 1.25rem; }
+  .input-header { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); background: var(--cream); }
+  .input-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; }
+  .char-count { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: var(--muted); }
+  .char-count.over { color: var(--accent); font-weight: 600; }
+  textarea { width: 100%; border: none; outline: none; padding: 1rem; font-family: 'IBM Plex Sans', sans-serif; font-size: 0.95rem; line-height: 1.6; resize: vertical; background: white; color: var(--ink); }
+  textarea::placeholder { color: var(--muted); font-style: italic; }
+  .keyword-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border-top: 1px solid var(--border); background: var(--cream); flex-wrap: wrap; }
+  .keyword-label { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+  .keyword-input { flex: 1; min-width: 140px; border: 1px solid var(--border); padding: 5px 10px; font-size: 0.85rem; font-family: 'IBM Plex Mono', monospace; background: white; outline: none; color: var(--ink); }
+  .keyword-input:focus { border-color: var(--ink); }
+  .analyze-btn { background: var(--ink); color: var(--paper); border: none; padding: 8px 20px; font-size: 0.85rem; font-weight: 600; cursor: pointer; letter-spacing: 0.03em; display: flex; align-items: center; gap: 0.5rem; transition: background 0.15s; white-space: nowrap; font-family: 'IBM Plex Sans', sans-serif; }
+  .analyze-btn:hover:not(:disabled) { background: var(--accent); }
+  .analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* LOADING */
+  .loading-state { display: none; padding: 2.5rem; text-align: center; background: white; border: 1px solid var(--border); }
+  .loading-state.visible { display: block; }
+  .loading-dots { display: inline-flex; gap: 6px; margin-bottom: 0.75rem; }
+  .loading-dots span { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: pulse 1.2s ease-in-out infinite; }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes pulse { 0%,100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1); } }
+  .loading-text { font-size: 0.85rem; color: var(--muted); font-style: italic; }
+
+  /* RESULTS */
+  .results-area { display: none; }
+  .results-area.visible { display: block; animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .results-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1.25rem; padding: 1.25rem; background: white; border: 1px solid var(--border); }
+  .score-circle { width: 72px; height: 72px; border-radius: 50%; border: 3px solid var(--green); display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; }
+  .score-circle.med { border-color: var(--yellow); }
+  .score-circle.low { border-color: var(--accent); }
+  .score-num { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; color: var(--green); line-height: 1; }
+  .score-num.med { color: var(--yellow); }
+  .score-num.low { color: var(--accent); }
+  .score-label-sm { font-size: 0.58rem; color: var(--muted); font-family: 'IBM Plex Mono', monospace; letter-spacing: 0.08em; }
+  .score-summary { flex: 1; }
+  .score-verdict { font-weight: 700; font-size: 1rem; margin-bottom: 0.3rem; }
+  .score-desc-text { font-size: 0.84rem; color: var(--muted); line-height: 1.5; }
+  .traffic-lights { display: flex; flex-direction: column; gap: 0.3rem; flex-shrink: 0; }
+  .light-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .dot.g { background: var(--green); }
+  .dot.y { background: var(--yellow); }
+  .dot.r { background: var(--accent); }
+
+  .checks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; margin-bottom: 1.25rem; }
+  .check-card { background: white; border: 1px solid var(--border); padding: 0.875rem 1rem; }
+  .check-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem; }
+  .check-name { font-size: 0.8rem; font-weight: 600; }
+  .pill { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; padding: 2px 8px; border-radius: 2px; font-weight: 500; white-space: nowrap; }
+  .pill.ok { background: var(--green-soft); color: var(--green); }
+  .pill.warn { background: var(--yellow-soft); color: var(--yellow); }
+  .pill.bad { background: var(--accent-soft); color: var(--accent); }
+  .check-detail { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+  .check-value { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: var(--ink); margin-top: 0.25rem; }
+
+  .suggestions-block { background: white; border: 1px solid var(--border); margin-bottom: 1.25rem; }
+  .suggestions-header { padding: 0.65rem 1rem; border-bottom: 1px solid var(--border); background: var(--cream); font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; }
+  .suggestion-item { padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); display: flex; gap: 0.75rem; align-items: flex-start; }
+  .suggestion-item:last-child { border-bottom: none; }
+  .sug-icon { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; flex-shrink: 0; margin-top: 2px; font-weight: 700; }
+  .sug-icon.warn { background: var(--yellow-soft); color: var(--yellow); }
+  .sug-icon.bad { background: var(--accent-soft); color: var(--accent); }
+  .sug-icon.ok { background: var(--green-soft); color: var(--green); }
+  .sug-text { font-size: 0.84rem; line-height: 1.5; flex: 1; }
+  .sug-text strong { font-weight: 600; }
+
+  .alt-title-item { padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; transition: background 0.1s; cursor: default; }
+  .alt-title-item:last-child { border-bottom: none; }
+  .alt-title-item:hover { background: var(--cream); }
+  .alt-title-text { font-size: 0.88rem; line-height: 1.4; flex: 1; }
+  .copy-btn { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; color: var(--muted); border: 1px solid var(--border); padding: 3px 8px; cursor: pointer; background: transparent; white-space: nowrap; transition: all 0.15s; }
+  .copy-btn:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .copy-btn.copied { background: var(--green); color: white; border-color: var(--green); }
+
+  .error-block { background: var(--accent-soft); border: 1px solid var(--accent); padding: 1rem 1.25rem; font-size: 0.85rem; color: var(--accent); display: none; margin-bottom: 1rem; }
+  .error-block.visible { display: block; }
+
+  /* RIGHT PANEL */
+  .right-panel { border-left: 1px solid var(--border); padding: 1.5rem; background: var(--cream); position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto; }
+  .panel-section { margin-bottom: 2rem; }
+  .panel-title { font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+  .history-item { padding: 0.6rem 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .history-item:last-child { border-bottom: none; }
+  .history-title { font-size: 0.82rem; line-height: 1.3; margin-bottom: 0.2rem; transition: color 0.1s; }
+  .history-item:hover .history-title { color: var(--accent); }
+  .history-meta { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: var(--muted); display: flex; gap: 0.75rem; }
+  .history-score { color: var(--green); }
+  .history-score.med { color: var(--yellow); }
+  .history-score.low { color: var(--accent); }
+
+  .tip-card { background: var(--ink); color: var(--paper); padding: 1rem; }
+  .tip-eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.4rem; }
+  .tip-text { font-size: 0.82rem; line-height: 1.5; color: #d4cfc6; }
+
+  .stats-row { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.4rem; }
+  .stats-row span:first-child { color: var(--muted); }
+  .stats-row span:last-child { font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+
+  /* BOTTOM BAR */
+  .bottom-bar { border-top: 1px solid var(--border); padding: 0.6rem 2rem; display: flex; align-items: center; justify-content: space-between; background: var(--cream); font-size: 0.72rem; color: var(--muted); font-family: 'IBM Plex Mono', monospace; flex-shrink: 0; }
+  .bottom-bar a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">SEO<span>desk</span></div>
+  <ul class="nav-links">
+    <li><a href="#" class="active">Analizar</a></li>
+    <li><a href="#">Historial</a></li>
+    <li><a href="#">Aprender</a></li>
+  </ul>
+  <div class="nav-right">
+    <span class="badge-free">Plan Free · <span id="usage-count">0</span>/3 análisis</span>
+    <button class="btn-upgrade">Actualizar a Pro</button>
+  </div>
+</nav>
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Herramientas</div>
+      <div class="sidebar-item active" id="si-titulo" onclick="switchTab('titulo')">
+        <span class="icon">T</span> Analizar título
+      </div>
+      <div class="sidebar-item" id="si-nota" onclick="switchTab('nota')">
+        <span class="icon">¶</span> Analizar nota
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Recientes</div>
+      <div id="sidebar-recientes">
+        <div class="sidebar-item" style="font-size:0.78rem;color:var(--muted);cursor:default;">Sin análisis aún</div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Uso mensual</div>
+      <div class="usage-bar">
+        <div class="usage-text">
+          <span id="usage-sidebar">0 de 3</span>
+          <span>Free</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" id="usage-bar-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="page-header">
+      <div class="page-title" id="page-title">Analizar título</div>
+      <div class="page-subtitle" id="page-subtitle">Optimizá tu titular para búsqueda sin perder valor periodístico</div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" id="tab-titulo" onclick="switchTab('titulo')">Título</div>
+      <div class="tab" id="tab-nota" onclick="switchTab('nota')">Nota completa</div>
+    </div>
+
+    <!-- PANEL TÍTULO -->
+    <div class="panel active" id="panel-titulo">
+      <div class="input-section">
+        <div class="input-header">
+          <span class="input-label">Tu título</span>
+          <span class="char-count" id="cc-titulo">0 caracteres</span>
+        </div>
+        <textarea id="input-titulo" rows="2" placeholder="Pegá tu titular periodístico acá..." oninput="updateChar('titulo')"></textarea>
+        <div class="keyword-row">
+          <span class="keyword-label">Palabra clave:</span>
+          <input class="keyword-input" id="kw-titulo" type="text" placeholder="ej: inflación argentina 2025" />
+          <button class="analyze-btn" id="btn-titulo" onclick="analyzeTitle()">▶ Analizar</button>
+        </div>
+      </div>
+      <div class="loading-state" id="loading-titulo">
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+        <div class="loading-text">Analizando tu título...</div>
+      </div>
+      <div class="error-block" id="error-titulo"></div>
+      <div class="results-area" id="results-titulo"></div>
+    </div>
+
+    <!-- PANEL NOTA -->
+    <div class="panel" id="panel-nota">
+      <div class="input-section">
+        <div class="input-header">
+          <span class="input-label">Título de la nota</span>
+          <span class="char-count" id="cc-nota-h">0 car.</span>
+        </div>
+        <textarea id="input-nota-h" rows="2" placeholder="Título de tu nota..." oninput="updateChar('nota-h')"></textarea>
+      </div>
+      <div class="input-section">
+        <div class="input-header">
+          <span class="input-label">Cuerpo de la nota</span>
+          <span class="char-count" id="cc-nota">0 palabras</span>
+        </div>
+        <textarea id="input-nota" rows="10" placeholder="Pegá el texto completo de tu nota acá..." oninput="updateChar('nota')"></textarea>
+        <div class="keyword-row">
+          <span class="keyword-label">Palabra clave:</span>
+          <input class="keyword-input" id="kw-nota" type="text" placeholder="ej: reforma laboral argentina" />
+          <button class="analyze-btn" id="btn-nota" onclick="analyzeNote()">▶ Analizar</button>
+        </div>
+      </div>
+      <div class="loading-state" id="loading-nota">
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+        <div class="loading-text">Analizando tu nota...</div>
+      </div>
+      <div class="error-block" id="error-nota"></div>
+      <div class="results-area" id="results-nota"></div>
+    </div>
+  </main>
+
+  <!-- RIGHT PANEL -->
+  <aside class="right-panel">
+    <div class="panel-section">
+      <div class="panel-title">Historial de análisis</div>
+      <div id="right-history">
+        <div style="font-size:0.8rem;color:var(--muted);font-style:italic;">Tus análisis aparecerán acá</div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">Tip del día</div>
+      <div class="tip-card" id="tip-card">
+        <div class="tip-eyebrow">Google Discover</div>
+        <div class="tip-text">Las notas que mejor funcionan en Discover tienen títulos entre 40 y 60 caracteres, con una emoción clara: curiosidad, utilidad o sorpresa. Evitá el clickbait — Google lo penaliza.</div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="panel-title">Tus estadísticas</div>
+      <div class="stats-row"><span>Análisis realizados</span><span id="stat-total">0</span></div>
+      <div class="stats-row"><span>Puntaje promedio</span><span id="stat-avg" style="color:var(--muted)">—</span></div>
+      <div class="stats-row"><span>Mejor puntaje</span><span id="stat-best" style="color:var(--green)">—</span></div>
+    </div>
+  </aside>
+</div>
+
+<div class="bottom-bar">
+  <span>SEOdesk · para periodistas</span>
+  <span>Plan Free — <a href="#">Actualizá a Pro para análisis ilimitados →</a></span>
+</div>
+
+<script>
+  const TIPS = [
+    { topic: 'Google Discover', text: 'Las notas que mejor funcionan en Discover tienen títulos entre 40 y 60 caracteres, con una emoción clara: curiosidad, utilidad o sorpresa. Evitá el clickbait — Google lo penaliza.' },
+    { topic: 'Primer párrafo', text: 'El primer párrafo de una nota SEO debe responder qué, quién, cuándo y dónde en las primeras 100 palabras. Google lo usa como snippet.' },
+    { topic: 'Palabra clave', text: 'La keyword principal debe aparecer en el título, en el primer párrafo y al menos 2-3 veces más en el cuerpo. No la repitas artificialmente — Google detecta el keyword stuffing.' },
+    { topic: 'Evergreen vs. Noticia', text: 'Las notas de actualidad rankean rápido pero caen rápido. Las evergreen tardan más en posicionar pero generan tráfico constante por meses.' },
+    { topic: 'Subtítulos H2', text: 'Usá subtítulos H2 cada 300-400 palabras. Ayudan a la lectura y le dicen a Google de qué trata cada sección. Incluí variaciones de tu keyword en al menos uno.' },
+  ];
+
+  let history = [];
+  let usageCount = 0;
+  let tipIndex = Math.floor(Math.random() * TIPS.length);
+
+  function showTip() {
+    const t = TIPS[tipIndex % TIPS.length];
+    document.getElementById('tip-card').innerHTML = `<div class="tip-eyebrow">${t.topic}</div><div class="tip-text">${t.text}</div>`;
+  }
+  showTip();
+
+  function switchTab(tab) {
+    ['titulo','nota'].forEach(t => {
+      document.getElementById('panel-' + t).classList.toggle('active', t === tab);
+      document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+      document.getElementById('si-' + t).classList.toggle('active', t === tab);
+    });
+    if (tab === 'titulo') {
+      document.getElementById('page-title').textContent = 'Analizar título';
+      document.getElementById('page-subtitle').textContent = 'Optimizá tu titular para búsqueda sin perder valor periodístico';
+    } else {
+      document.getElementById('page-title').textContent = 'Analizar nota';
+      document.getElementById('page-subtitle').textContent = 'Revisá SEO on-page, legibilidad y estructura de tu texto';
+    }
+  }
+
+  function updateChar(field) {
+    if (field === 'titulo') {
+      const v = document.getElementById('input-titulo').value;
+      const el = document.getElementById('cc-titulo');
+      el.textContent = v.length + ' caracteres';
+      el.className = 'char-count' + (v.length > 65 ? ' over' : '');
+    } else if (field === 'nota-h') {
+      const v = document.getElementById('input-nota-h').value;
+      const el = document.getElementById('cc-nota-h');
+      el.textContent = v.length + ' car.';
+      el.className = 'char-count' + (v.length > 65 ? ' over' : '');
+    } else if (field === 'nota') {
+      const v = document.getElementById('input-nota').value;
+      const w = v.trim() ? v.trim().split(/\s+/).length : 0;
+      document.getElementById('cc-nota').textContent = w + ' palabras';
+    }
+  }
+
+  function sc(n) { return n >= 75 ? '' : n >= 50 ? ' med' : ' low'; }
+  function dc(s) { return s === 'ok' ? 'g' : s === 'warn' ? 'y' : 'r'; }
+  function pc(s) { return s === 'ok' ? 'ok' : s === 'warn' ? 'warn' : 'bad'; }
+  function pl(s) { return s === 'ok' ? 'OK' : s === 'warn' ? 'Mejorar' : 'Crítico'; }
+
+  function addToHistory(titulo, score, tipo) {
+    history.unshift({ titulo, score, tipo, time: 'ahora' });
+    if (history.length > 5) history.pop();
+    usageCount = Math.min(usageCount + 1, 3);
+    updateUI();
+    tipIndex++;
+    showTip();
+  }
+
+  function updateUI() {
+    document.getElementById('usage-count').textContent = usageCount;
+    document.getElementById('usage-sidebar').textContent = usageCount + ' de 3';
+    document.getElementById('usage-bar-fill').style.width = (usageCount / 3 * 100) + '%';
+    document.getElementById('stat-total').textContent = history.length;
+
+    if (history.length > 0) {
+      const avg = Math.round(history.reduce((s, h) => s + h.score, 0) / history.length);
+      const best = Math.max(...history.map(h => h.score));
+      const avgEl = document.getElementById('stat-avg');
+      avgEl.textContent = avg + '/100';
+      avgEl.style.color = avg >= 75 ? 'var(--green)' : avg >= 50 ? 'var(--yellow)' : 'var(--accent)';
+      document.getElementById('stat-best').textContent = best + '/100';
+    }
+
+    const hEl = document.getElementById('right-history');
+    if (history.length === 0) {
+      hEl.innerHTML = '<div style="font-size:0.8rem;color:var(--muted);font-style:italic;">Tus análisis aparecerán acá</div>';
+    } else {
+      hEl.innerHTML = history.map(h => {
+        const cls = h.score >= 75 ? '' : h.score >= 50 ? ' med' : ' low';
+        return `<div class="history-item">
+          <div class="history-title">${h.titulo.length > 55 ? h.titulo.substring(0,55)+'…' : h.titulo}</div>
+          <div class="history-meta">
+            <span class="history-score${cls}">${h.score}/100</span>
+            <span>${h.tipo}</span>
+            <span>${h.time}</span>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    const srEl = document.getElementById('sidebar-recientes');
+    if (history.length === 0) {
+      srEl.innerHTML = '<div class="sidebar-item" style="font-size:0.78rem;color:var(--muted);cursor:default;">Sin análisis aún</div>';
+    } else {
+      srEl.innerHTML = history.slice(0,3).map(h =>
+        `<div class="sidebar-item"><span class="icon">·</span>${h.titulo.length > 22 ? h.titulo.substring(0,22)+'…' : h.titulo}</div>`
+      ).join('');
+    }
+  }
+
+  function renderResults(containerId, data, tituloSnippet, tipo) {
+    const c = document.getElementById(containerId);
+    const cls = sc(data.score);
+
+    const lightsHtml = data.checks.map(ch =>
+      `<div class="light-item"><div class="dot ${dc(ch.status)}"></div>${ch.name}</div>`
+    ).join('');
+
+    const checksHtml = data.checks.map(ch => `
+      <div class="check-card">
+        <div class="check-top">
+          <span class="check-name">${ch.name}</span>
+          <span class="pill ${pc(ch.status)}">${pl(ch.status)}</span>
+        </div>
+        <div class="check-detail">${ch.detail}</div>
+        ${ch.value ? `<div class="check-value">→ ${ch.value}</div>` : ''}
+      </div>
+    `).join('');
+
+    const suggestionsHtml = data.suggestions.map(s => `
+      <div class="suggestion-item">
+        <div class="sug-icon ${s.level}">${s.level === 'bad' ? '!' : s.level === 'warn' ? '~' : '✓'}</div>
+        <div class="sug-text">${s.text}</div>
+      </div>
+    `).join('');
+
+    const altHtml = data.alternatives ? `
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem;margin-top:1.25rem;">Títulos alternativos sugeridos</div>
+      <div class="suggestions-block">
+        <div class="suggestions-header">Opciones generadas por IA</div>
+        ${data.alternatives.map((alt) => `
+          <div class="alt-title-item">
+            <div class="alt-title-text">${alt}</div>
+            <button class="copy-btn" onclick="copyText(this,'${alt.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')">Copiar</button>
+          </div>
+        `).join('')}
+      </div>
+    ` : '';
+
+    c.innerHTML = `
+      <div class="results-header">
+        <div class="score-circle${cls}">
+          <span class="score-num${cls}">${data.score}</span>
+          <span class="score-label-sm">/100</span>
+        </div>
+        <div class="score-summary">
+          <div class="score-verdict">${data.verdict}</div>
+          <div class="score-desc-text">${data.summary}</div>
+        </div>
+        <div class="traffic-lights">${lightsHtml}</div>
+      </div>
+      <div class="checks-grid">${checksHtml}</div>
+      <div class="suggestions-block">
+        <div class="suggestions-header">Qué mejorar</div>
+        ${suggestionsHtml}
+      </div>
+      ${altHtml}
+    `;
+    c.classList.add('visible');
+    addToHistory(tituloSnippet, data.score, tipo);
+  }
+
+  function copyText(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✓ Copiado';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+
+  async function callClaude(prompt) {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+    if (!r.ok) throw new Error('API error ' + r.status);
+    const d = await r.json();
+    return d.content[0].text;
+  }
+
+  async function analyzeTitle() {
+    const titulo = document.getElementById('input-titulo').value.trim();
+    const kw = document.getElementById('kw-titulo').value.trim();
+    if (!titulo) { alert('Ingresá un título para analizar.'); return; }
+
+    const btn = document.getElementById('btn-titulo');
+    const loading = document.getElementById('loading-titulo');
+    const results = document.getElementById('results-titulo');
+    const errorEl = document.getElementById('error-titulo');
+
+    btn.disabled = true;
+    results.classList.remove('visible'); results.innerHTML = '';
+    errorEl.classList.remove('visible');
+    loading.classList.add('visible');
+
+    const prompt = `Sos un experto en SEO para medios periodísticos hispanohablantes. Analizá este titular y devolvé SOLO JSON válido, sin texto extra ni backticks.
+
+Título: "${titulo}"
+${kw ? `Palabra clave: "${kw}"` : ''}
+
+JSON requerido:
+{
+  "score": <0-100>,
+  "verdict": "<frase corta>",
+  "summary": "<2 oraciones de análisis>",
+  "checks": [
+    {"name":"Longitud","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},
+    {"name":"Palabra clave","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},
+    {"name":"Potencial de clicks","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},
+    {"name":"Intención de búsqueda","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"}
+  ],
+  "suggestions": [
+    {"level":"<bad|warn|ok>","text":"<sugerencia con <strong>énfasis</strong>}"},
+    {"level":"<bad|warn|ok>","text":"<sugerencia>"},
+    {"level":"<bad|warn|ok>","text":"<sugerencia>"}
+  ],
+  "alternatives": ["<título alt 1>","<título alt 2>","<título alt 3>"]
+}
+
+Hablá como periodista, no como marketer. Contexto latinoamericano.`;
+
+    try {
+      const raw = await callClaude(prompt);
+      const data = JSON.parse(raw.replace(/```json|```/g,'').trim());
+      renderResults('results-titulo', data, titulo, 'título');
+    } catch(e) {
+      errorEl.textContent = 'Hubo un error al analizar. Intentá de nuevo.';
+      errorEl.classList.add('visible');
+    } finally {
+      btn.disabled = false;
+      loading.classList.remove('visible');
+    }
+  }
+
+  async function analyzeNote() {
+    const tituloH = document.getElementById('input-nota-h').value.trim();
+    const nota = document.getElementById('input-nota').value.trim();
+    const kw = document.getElementById('kw-nota').value.trim();
+    if (!nota) { alert('Ingresá el texto de tu nota.'); return; }
+
+    const btn = document.getElementById('btn-nota');
+    const loading = document.getElementById('loading-nota');
+    const results = document.getElementById('results-nota');
+    const errorEl = document.getElementById('error-nota');
+
+    btn.disabled = true;
+    results.classList.remove('visible'); results.innerHTML = '';
+    errorEl.classList.remove('visible');
+    loading.classList.add('visible');
+
+    const words = nota.trim().split(/\s+/).length;
+    const preview = nota.length > 2000 ? nota.substring(0,2000)+'...' : nota;
+
+    const prompt = `Sos un experto en SEO para medios periodísticos hispanohablantes. Analizá esta nota y devolvé SOLO JSON válido, sin texto extra ni backticks.
+
+${tituloH ? `Título: "${tituloH}"` : ''}
+${kw ? `Palabra clave: "${kw}"` : ''}
+Palabras: ${words}
+Texto: """${preview}"""
+
+JSON requerido:
+{
+  "score": <0-100>,
+  "verdict": "<frase corta>",
+  "summary": "<2 oraciones>",
+  "checks": [
+    {"name":"Densidad keyword","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},
+    {"name":"Extensión","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},
+    {"name":"Subtítulos H2/H3","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},
+    {"name":"Legibilidad","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},
+    {"name":"Primer párrafo","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},
+    {"name":"SEO técnico","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"}
+  ],
+  "suggestions": [
+    {"level":"<bad|warn|ok>","text":"<sugerencia con <strong>énfasis</strong>>"},
+    {"level":"<bad|warn|ok>","text":"<sugerencia>"},
+    {"level":"<bad|warn|ok>","text":"<sugerencia>"},
+    {"level":"<bad|warn|ok>","text":"<sugerencia>"}
+  ]
+}
+
+Sé específico. Contexto latinoamericano. Hablá como periodista.`;
+
+    try {
+      const raw = await callClaude(prompt);
+      const data = JSON.parse(raw.replace(/```json|```/g,'').trim());
+      const snippet = tituloH || nota.substring(0,50);
+      renderResults('results-nota', data, snippet, 'nota');
+    } catch(e) {
+      errorEl.textContent = 'Hubo un error al analizar. Intentá de nuevo.';
+      errorEl.classList.add('visible');
+    } finally {
+      btn.disabled = false;
+      loading.classList.remove('visible');
+    }
+  }
+</script>
+</body>
+</html>
