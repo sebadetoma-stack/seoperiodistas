@@ -655,39 +655,39 @@
       ? `\n\nTítulos reales que funcionaron muy bien en ${mercado === 'espana' ? 'España' : mercado === 'eeuu' ? 'EE.UU. (audiencia hispana)' : mercado === 'argentina' ? 'Argentina' : mercado.charAt(0).toUpperCase() + mercado.slice(1)} (aprendé de sus patrones):\n${ejemplosPorMercado[mercado].map((t,i) => `${i+1}. ${t}`).join('\n')}`
       : '';
 
-    const prompt = `Sos un experto en SEO para medios periodísticos hispanohablantes. Analizá este titular y devolvé SOLO JSON válido, sin texto extra ni backticks.
+    const mercadoNombre = mercado === 'espana' ? 'España' : mercado === 'eeuu' ? 'EE.UU. (audiencia hispana)' : mercado === 'argentina' ? 'Argentina' : mercado ? (mercado.charAt(0).toUpperCase() + mercado.slice(1)) : '';
 
-Título: "${titulo}"
-${kw ? `Palabra clave: "${kw}"` : ''}
-${mercado ? `Mercado objetivo: ${mercado === 'espana' ? 'España' : mercado === 'eeuu' ? 'EE.UU. (audiencia hispana)' : mercado === 'argentina' ? 'Argentina' : mercado.charAt(0).toUpperCase() + mercado.slice(1)}` : ''}${ejemplos}
-
-CRITERIOS DE EVALUACIÓN:
-- Longitud: títulos entre 60-100 caracteres son aceptables si el contenido lo justifica. Solo penalizá lo que pase de 110.
-- Los títulos con "Oficial |", "Confirmado y oficial |" funcionan muy bien en estos mercados.
-- El impacto personal directo ("qué te afecta a vos", "todos los colombianos") genera más clicks.
-- Las preguntas implícitas y la utilidad práctica rankean mejor que el dato frío.
-- Evaluá si el título tiene potencial en Google Discover, no solo en búsqueda.
-
-JSON requerido:
-{
-  "score": <0-100>,
-  "verdict": "<frase corta>",
-  "summary": "<2 oraciones de análisis>",
-  "checks": [
-    {"name":"Longitud","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},
-    {"name":"Palabra clave","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},
-    {"name":"Potencial de clicks","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},
-    {"name":"Intención de búsqueda","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"}
-  ],
-  "suggestions": [
-    {"level":"<bad|warn|ok>","text":"<sugerencia con <strong>énfasis</strong>>"},
-    {"level":"<bad|warn|ok>","text":"<sugerencia>"},
-    {"level":"<bad|warn|ok>","text":"<sugerencia>"}
-  ],
-  "alternatives": ["<título alt 1>","<título alt 2>","<título alt 3>"]
-}
-
-Hablá como periodista, no como marketer.`;
+    let promptParts = 'Sos un experto en SEO para medios periodísticos hispanohablantes. Analizá este titular y devolvé SOLO JSON válido, sin texto extra ni backticks.\n\n';
+    promptParts += 'Título: "' + titulo + '"\n';
+    if (kw) promptParts += 'Palabra clave: "' + kw + '"\n';
+    if (mercadoNombre) promptParts += 'Mercado objetivo: ' + mercadoNombre + '\n';
+    if (ejemplos) promptParts += ejemplos;
+    promptParts += '\n\nCRITERIOS DE EVALUACIÓN:\n';
+    promptParts += '- Longitud: títulos entre 60-100 caracteres son aceptables si el contenido lo justifica. Solo penalizá lo que pase de 110.\n';
+    promptParts += '- Los títulos con "Oficial |", "Confirmado y oficial |" funcionan muy bien en estos mercados.\n';
+    promptParts += '- El impacto personal directo genera más clicks.\n';
+    promptParts += '- Las preguntas implícitas y la utilidad práctica rankean mejor que el dato frío.\n';
+    promptParts += '- Evaluá si el título tiene potencial en Google Discover, no solo en búsqueda.\n\n';
+    promptParts += 'JSON requerido:\n';
+    promptParts += '{\n';
+    promptParts += '  "score": <0-100>,\n';
+    promptParts += '  "verdict": "<frase corta>",\n';
+    promptParts += '  "summary": "<2 oraciones de análisis>",\n';
+    promptParts += '  "checks": [\n';
+    promptParts += '    {"name":"Longitud","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},\n';
+    promptParts += '    {"name":"Palabra clave","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},\n';
+    promptParts += '    {"name":"Potencial de clicks","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},\n';
+    promptParts += '    {"name":"Intención de búsqueda","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"}\n';
+    promptParts += '  ],\n';
+    promptParts += '  "suggestions": [\n';
+    promptParts += '    {"level":"<bad|warn|ok>","text":"<sugerencia>"},\n';
+    promptParts += '    {"level":"<bad|warn|ok>","text":"<sugerencia>"},\n';
+    promptParts += '    {"level":"<bad|warn|ok>","text":"<sugerencia>"}\n';
+    promptParts += '  ],\n';
+    promptParts += '  "alternatives": ["<título alt 1>","<título alt 2>","<título alt 3>"]\n';
+    promptParts += '}\n\n';
+    promptParts += 'Hablá como periodista, no como marketer.';
+    const prompt = promptParts;
 
     try {
       const raw = await callClaude(prompt);
