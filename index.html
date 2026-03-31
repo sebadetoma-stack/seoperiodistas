@@ -677,7 +677,11 @@
     promptParts += '    {"name":"Longitud","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},\n';
     promptParts += '    {"name":"Palabra clave","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},\n';
     promptParts += '    {"name":"Potencial de clicks","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},\n';
-    promptParts += '    {"name":"Intención de búsqueda","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"}\n';
+    promptParts += '    {"name":"Intención de búsqueda","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},\n';
+    promptParts += '    {"name":"Nivel de dramatismo","status":"<ok|warn|bad>","detail":"Evaluá si el tono es sobrio, llamativo o exagerado. ok=sobrio, warn=llamativo, bad=exagerado/clickbait","value":"<sobrio|llamativo|exagerado>"},\n';
+    promptParts += '    {"name":"Verificabilidad","status":"<ok|warn|bad>","detail":"¿El título promete algo que una nota puede demostrar? ok=verificable, warn=dudoso, bad=inverificable","value":"<dato>"},\n';
+    promptParts += '    {"name":"Fórmulas gastadas","status":"<ok|warn|bad>","detail":"Detectá si usa muletillas como: del siglo, histórico, cambia para siempre, para siempre, jamás visto, nunca antes visto. ok=ninguna, warn=una, bad=varias","value":"<lista de fórmulas detectadas o ninguna>"},\n';
+    promptParts += '    {"name":"Estilo del mercado","status":"<ok|warn|bad>","detail":"¿El título encaja con el estilo y tono del mercado objetivo? ok=encaja bien, warn=encaja parcialmente, bad=no encaja","value":"<dato>"}\n';
     promptParts += '  ],\n';
     promptParts += '  "suggestions": [\n';
     promptParts += '    {"level":"<bad|warn|ok>","text":"<sugerencia>"},\n';
