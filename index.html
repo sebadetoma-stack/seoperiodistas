@@ -246,6 +246,15 @@
         </div>
         <textarea id="input-titulo" rows="2" placeholder="Pegá tu titular periodístico acá..." oninput="updateChar('titulo')"></textarea>
         <div class="keyword-row">
+          <span class="keyword-label">Mercado:</span>
+          <select id="mercado-titulo" style="border:1px solid var(--border);padding:5px 10px;font-size:0.85rem;font-family:'IBM Plex Sans',sans-serif;background:white;outline:none;color:var(--ink);cursor:pointer;">
+            <option value="">General</option>
+            <option value="espana">España</option>
+            <option value="colombia">Colombia</option>
+            <option value="mexico">México</option>
+            <option value="eeuu">EE.UU. (hispano)</option>
+            <option value="argentina">Argentina</option>
+          </select>
           <span class="keyword-label">Palabra clave:</span>
           <input class="keyword-input" id="kw-titulo" type="text" placeholder="ej: inflación argentina 2025" />
           <button class="analyze-btn" id="btn-titulo" onclick="analyzeTitle()">▶ Analizar</button>
@@ -529,10 +538,135 @@
     errorEl.classList.remove('visible');
     loading.classList.add('visible');
 
+    const mercado = document.getElementById('mercado-titulo').value;
+    const ejemplosPorMercado = {
+      espana: [
+        "Fernando, único vecino en un pueblo de España: 'No me da miedo vivir solo, me da miedo que el pueblo desaparezca'",
+        "Por nueva ley de sucesiones, los viudos no recibirán los bienes aunque lo especifique el testamento",
+        "El gobierno revisará todas las guanteras y cancelará tu licencia de conducir si llevas este objeto",
+        "Se aproxima la tormenta del siglo con fuertes vientos y lluvias intensas: cuáles son las zonas en alerta naranja por la borrasca Francis",
+        "Se despide la licencia de conducir para las personas mayores: a esta edad la vigencia será cada vez menor",
+        "Cambia la ley de sucesiones y ahora los bienes de la herencia no podrán utilizarse por 10 años: en qué casos se aplica",
+        "Confirmado: los pensionistas nacidos entre 1960 y 1970 podrán acceder al 100% de la jubilación",
+        "Es oficial: el gobierno de España examinará coche por coche para confirmar el cumplimiento de un requisito fundamental de la DGT",
+        "Adiós a las propinas en cafés y restaurantes: la norma que exige a los meseros no cobrar dinero extra",
+        "El gobierno irá negocio por negocio sin previo aviso y exigirá rendición de cuentas a quienes no cumplan con esta ley",
+        "Poner una cuchara en la ventana: por qué lo recomiendan y para qué sirve",
+        "Ya es oficial: este lunes todos los bancos del país cerrarán sus puertas",
+        "Buques rusos encienden las alarmas de la Armada al ser vistos en aguas de interés nacional entrando en el litoral gallego",
+        "Se viene un diluvio histórico con tormentas por más de 72 horas, lluvias intensas y fuertes ráfagas de viento",
+        "Se aproxima la tormenta del siglo con granizo: cuáles son las zonas afectadas por las intensas lluvias"
+      ],
+      colombia: [
+        "Cambia la Ley de Sucesiones y los bienes de la herencia no podrán utilizarse por más de 10 años: en qué casos se aplica",
+        "Oficial | La DIAN buscará casa por casa a todos los pensionados que no cumplan con este trámite",
+        "Confirmado y oficial | El Gobierno decretó que el próximo jueves será feriado y habrá un fin de semana largo",
+        "El país más poderoso y agresivo de Latinoamérica: dispone de un ejército que desafiará a las potencias mundiales",
+        "Inaugurarán el primer túnel inteligente de América Latina: una obra extraordinaria con tecnología alemana",
+        "El primer país de Latinoamérica en construir su propio avión de combate supersónico y desafiar a las grandes potencias",
+        "Cuando fallece el titular de una cuenta bancaria, ¿qué deben hacer los familiares para no heredar deudas?",
+        "Construyen el edificio más alto del mundo: la Torre Jeddah alcanzará los 1000 metros de altura",
+        "El Aeropuerto El Dorado cambia para siempre: activan un nuevo sistema migratorio y todos los colombianos tendrán que adaptarse",
+        "Ley de Sucesiones: el Estado se quedará con la herencia del fallecido si faltan estos documentos"
+      ],
+      mexico: [
+        "Murió la visa y el pasaporte: EE.UU aceptará la entrada legal al país a todos los extranjeros con este documento",
+        "Hay nuevos requisitos para la renovación del pasaporte mexicano: cuáles son todos los documentos exigidos",
+        "Confirmado por Educación | Se extenderá el descanso después de Semana Santa y no habrá clases hasta el 13 de…",
+        "La Suprema Corte va contra los propietarios: ya es legal exigirles un tributo cuando adquieren una vivienda",
+        "La Suprema Corte falló y no hay vuelta atrás: desde ahora quedan invalidados los permisos para mover y exportar",
+        "La Justicia falla en contra de los automovilistas y manda confiscar vehículos por infracciones consideradas serias",
+        "Es oficial: la Suprema Corte permitirá embargar cuentas Afore a pensionados del IMSS e ISSSTE que incumplan",
+        "Oficial y nacional | México prohibirá el ingreso y la salida del país a ciudadanos y extranjeros que hayan postergado",
+        "Servicio Militar Obligatorio 2026: inicia el proceso para jóvenes nacidos en 2008 y será de sólo 3 meses",
+        "La verificación vehicular ya no será igual: el trámite cambiará en abril y sumará una nueva multa para los conductores"
+      ],
+      colombia: [
+        "Se viene un diluvio histórico con tormentas por 72 horas, intensas lluvias y ráfagas de viento de 60 kilómetros por hora",
+        "Se despide la ley de alquileres: se elimina el desalojo y los inquilinos se podrán quedar dos años más en las propiedades",
+        "Estados Unidos quitará el pasaporte a todos los colombianos que lleguen con esta versión del documento",
+        "Confirmado: el gobierno decretó que embargarán todas las tarjetas de crédito y cuentas bancarias que figuren en esta página",
+        "Por nueva ley de sucesiones, los viudos no recibirán los bienes aunque lo especifique el testamento",
+        "Alteran las sucesiones en Colombia: los cónyuges serán los exclusivos herederos si se satisfacen estas condiciones",
+        "La Suprema Corte falló y no hay vuelta atrás: desde ahora quedan invalidados los permisos para mover y exportar ganado",
+        "El cielo se partirá en dos y llega el primer gran diluvio del año con granizo y ráfagas de viento: las zonas en alerta",
+        "Cierra el Banco Agrario en Colombia: la entidad financiera permanecerá inactiva durante tres días en todo el país",
+        "Cambian las clases para siempre: fueron eliminadas dos materias clave de todas las escuelas del país",
+        "Murió la ley de alquileres: los inquilinos podrán quedarse en la vivienda incluso si el dueño no desea extender el contrato",
+        "Cambia la ley de sucesiones y ahora los bienes de la herencia no podrán utilizarse por 10 años: en qué casos se aplica",
+        "Fallo histórico de la Corte Suprema en beneficio a los pensionados: se despide uno de los obstáculos para la continuidad de programas sociales",
+        "La Corte Suprema emitió un fallo histórico que cambia el trámite del pasaporte y ahora el reglamento será más flexible",
+        "Salario mínimo bajo revisión judicial en Colombia: la demanda que pone límites a las decisiones del ejecutivo"
+      ],
+      eeuu: [
+        "Se viene un diluvio histórico con tormentas por 72 horas, intensas lluvias y ráfagas de viento de 60 kilómetros por hora",
+        "Se despide la ley de alquileres: se elimina el desalojo y los inquilinos se podrán quedar dos años más en las propiedades",
+        "Estados Unidos quitará el pasaporte a todos los colombianos que lleguen con esta versión del documento",
+        "Confirmado: el gobierno decretó que embargarán todas las tarjetas de crédito y cuentas bancarias que figuren en esta página",
+        "Por nueva ley de sucesiones, los viudos no recibirán los bienes aunque lo especifique el testamento",
+        "Oficial: España prohibirá el ingreso y la salida del país a ciudadanos y extranjeros que hayan postergado este trámite",
+        "La Suprema Corte falló y no hay vuelta atrás: desde ahora quedan invalidados los permisos para mover y exportar ganado",
+        "El cielo se partirá en dos y llega el primer gran diluvio del año con granizo y ráfagas de viento: las zonas en alerta",
+        "Cierra el Banco Agrario en Colombia: la entidad financiera permanecerá inactiva durante tres días en todo el país",
+        "Cambian las clases para siempre: fueron eliminadas dos materias clave de todas las escuelas del país",
+        "Murió la ley de alquileres: los inquilinos podrán quedarse en la vivienda incluso si el dueño no desea extender el contrato",
+        "Cambia la ley de sucesiones y ahora los bienes de la herencia no podrán utilizarse por 10 años: en qué casos se aplica",
+        "Fallo histórico de la Corte Suprema en beneficio a los pensionados: se despide uno de los obstáculos para programas sociales",
+        "La Corte Suprema emitió un fallo histórico que cambia el trámite del pasaporte y ahora el reglamento será más flexible",
+        "Salario mínimo bajo revisión judicial: la demanda que pone límites a las decisiones del ejecutivo"
+      ]
+      mexico: [
+        "La Suprema Corte falló y no hay vuelta atrás: desde ahora quedan invalidados los permisos para mover y exportar ganado",
+        "Ya es oficial: el SAT visitará casa por casa con abogados y cámaras especiales para verificar el cumplimiento de las obligaciones fiscales",
+        "Murió la ley de alquileres: los inquilinos podrán quedarse en la vivienda incluso si el dueño no desea extender el contrato",
+        "Claudia Sheinbaum ordena la nacionalización de terrenos para el Tren Maya y habrá compensación para todos estos mexicanos",
+        "Oficial: México prohibirá el ingreso y la salida del país a ciudadanos y extranjeros que hayan postergado este trámite con su pasaporte",
+        "Por orden del gobierno se suprimen las horas extras en todo el país: adiós a las chambitas adicionales",
+        "Adiós a la reducción de la jornada laboral: exigirán a los empleados trabajar más horas y sin pausas para compensar el día libre",
+        "Oficial: por decisión del gobierno, los hijos serán anotados únicamente con el apellido de la madre cuando sus padres no estén casados",
+        "La Suprema Corte falló a favor de los conductores y le pone freno de mano a las multas de tránsito",
+        "Histórico: la Corte Suprema falló a favor de las madres y ahora podrán decidir que los hijos lleven su apellido y no solo el del padre",
+        "Se despide la licencia de conducir para las personas mayores: no podrán renovarla como siempre y su validez será menor",
+        "Ya lo hizo oficial la Suprema Corte: miles de mexicanos dejarán de tener descuentos en sus salarios",
+        "Cambia la historia para siempre: hallaron una de las siete maravillas del mundo que estuvo perdida por 1600 años",
+        "Educación decretó el cierre de todas las escuelas el lunes 12: no habrá clases en preescolar, primaria y secundaria",
+        "Ya es oficial: el gobierno confirmó que embargarán todas las cuentas de bancos y bienes que figuren en este listado de Hacienda"
+      ],
+      argentina: [
+        "Se aproxima un ciclón con tormentas intensas y un diluvio histórico: alerta máxima para Buenos Aires y 9 provincias",
+        "Se viene un diluvio histórico con tormentas por 72 horas, intensas lluvias y ráfagas de viento de 60 kilómetros por hora",
+        "Oficial: por decisión del gobierno, los hijos serán anotados únicamente con el apellido de la madre cuando sus padres no estén casados",
+        "Cambian las escuelas para siempre: el gobierno eliminó por decreto varias materias clave",
+        "El cielo se partirá en dos y llega el primer gran diluvio del año con granizo y ráfagas de viento: las zonas en alerta",
+        "Oficial: por decisión del gobierno, no se podrá anotar a ningún hijo con los apellidos de esta lista",
+        "Histórico: la Corte Suprema falló a favor de las madres y ahora podrán decidir que los hijos lleven su apellido",
+        "Cambian las clases para siempre: fueron eliminadas dos materias clave de todas las escuelas del país",
+        "Se despide la VTV: el gobierno decidió que todos los vehículos de esta lista no deberán realizar la revisión",
+        "Paro confirmado de la CGT: cuándo será la medida de fuerza y qué servicios se verán afectados",
+        "Se viene un diluvio histórico: más de 4 días seguidos de tormentas y lluvias intensas",
+        "Cambia la historia para siempre: hallaron una de las siete maravillas del mundo que estuvo perdida por 1600 años",
+        "Se despidió una de las cadenas más históricas del país: más de 30 sucursales cerraron sus puertas",
+        "Por nueva ley de sucesiones, los viudos no recibirán los bienes aunque lo especifique el testamento",
+        "Terminan la autopista más esperada por los argentinos: conectará dos ciudades clave y mejorará el tránsito"
+      ]
+    };
+
+    const ejemplos = mercado && ejemplosPorMercado[mercado]
+      ? `\n\nTítulos reales que funcionaron muy bien en ${mercado === 'espana' ? 'España' : mercado === 'eeuu' ? 'EE.UU. (audiencia hispana)' : mercado === 'argentina' ? 'Argentina' : mercado.charAt(0).toUpperCase() + mercado.slice(1)} (aprendé de sus patrones):\n${ejemplosPorMercado[mercado].map((t,i) => `${i+1}. ${t}`).join('\n')}`
+      : '';
+
     const prompt = `Sos un experto en SEO para medios periodísticos hispanohablantes. Analizá este titular y devolvé SOLO JSON válido, sin texto extra ni backticks.
 
 Título: "${titulo}"
 ${kw ? `Palabra clave: "${kw}"` : ''}
+${mercado ? `Mercado objetivo: ${mercado === 'espana' ? 'España' : mercado === 'eeuu' ? 'EE.UU. (audiencia hispana)' : mercado === 'argentina' ? 'Argentina' : mercado.charAt(0).toUpperCase() + mercado.slice(1)}` : ''}${ejemplos}
+
+CRITERIOS DE EVALUACIÓN:
+- Longitud: títulos entre 60-100 caracteres son aceptables si el contenido lo justifica. Solo penalizá lo que pase de 110.
+- Los títulos con "Oficial |", "Confirmado y oficial |" funcionan muy bien en estos mercados.
+- El impacto personal directo ("qué te afecta a vos", "todos los colombianos") genera más clicks.
+- Las preguntas implícitas y la utilidad práctica rankean mejor que el dato frío.
+- Evaluá si el título tiene potencial en Google Discover, no solo en búsqueda.
 
 JSON requerido:
 {
@@ -546,14 +680,14 @@ JSON requerido:
     {"name":"Intención de búsqueda","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"}
   ],
   "suggestions": [
-    {"level":"<bad|warn|ok>","text":"<sugerencia con <strong>énfasis</strong>}"},
+    {"level":"<bad|warn|ok>","text":"<sugerencia con <strong>énfasis</strong>>"},
     {"level":"<bad|warn|ok>","text":"<sugerencia>"},
     {"level":"<bad|warn|ok>","text":"<sugerencia>"}
   ],
   "alternatives": ["<título alt 1>","<título alt 2>","<título alt 3>"]
 }
 
-Hablá como periodista, no como marketer. Contexto latinoamericano.`;
+Hablá como periodista, no como marketer.`;
 
     try {
       const raw = await callClaude(prompt);
