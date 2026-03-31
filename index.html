@@ -272,10 +272,23 @@
     <div class="panel" id="panel-nota">
       <div class="input-section">
         <div class="input-header">
+          <span class="input-label">Volanta <span style="font-weight:300;color:var(--muted);">(opcional)</span></span>
+        </div>
+        <textarea id="input-nota-volanta" rows="1" placeholder="Ej: ECONOMÍA · Exclusivo · Análisis..." oninput="" style="min-height:42px;"></textarea>
+      </div>
+      <div class="input-section">
+        <div class="input-header">
           <span class="input-label">Título de la nota</span>
           <span class="char-count" id="cc-nota-h">0 car.</span>
         </div>
         <textarea id="input-nota-h" rows="2" placeholder="Título de tu nota..." oninput="updateChar('nota-h')"></textarea>
+      </div>
+      <div class="input-section">
+        <div class="input-header">
+          <span class="input-label">Bajada <span style="font-weight:300;color:var(--muted);">(opcional)</span></span>
+          <span class="char-count" id="cc-nota-bajada">0 car.</span>
+        </div>
+        <textarea id="input-nota-bajada" rows="2" placeholder="El resumen o copete de la nota..." oninput="updateCharBajada()"></textarea>
       </div>
       <div class="input-section">
         <div class="input-header">
@@ -362,6 +375,13 @@
       document.getElementById('page-title').textContent = 'Analizar nota';
       document.getElementById('page-subtitle').textContent = 'Revisá SEO on-page, legibilidad y estructura de tu texto';
     }
+  }
+
+  function updateCharBajada() {
+    const v = document.getElementById('input-nota-bajada').value;
+    const el = document.getElementById('cc-nota-bajada');
+    el.textContent = v.length + ' car.';
+    el.className = 'char-count' + (v.length > 160 ? ' over' : '');
   }
 
   function updateChar(field) {
@@ -468,12 +488,19 @@
       <div style="font-family:'IBM Plex Mono',monospace;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem;margin-top:1.25rem;">Títulos alternativos sugeridos</div>
       <div class="suggestions-block">
         <div class="suggestions-header">Opciones generadas por IA</div>
-        ${data.alternatives.map((alt) => `
-          <div class="alt-title-item">
-            <div class="alt-title-text">${alt}</div>
-            <button class="copy-btn" onclick="copyText(this,'${alt.replace(/'/g,"\\'").replace(/"/g,'&quot;')}')">Copiar</button>
-          </div>
-        `).join('')}
+        ${data.alternatives.map((alt) => {
+          const titulo = (typeof alt === 'object' && alt.titulo) ? alt.titulo : alt;
+          const tono = (typeof alt === 'object') ? alt.tono : null;
+          const tonoCls = tono === 'exagerado' ? 'bad' : tono === 'llamativo' ? 'warn' : 'ok';
+          const tonoLabel = tono === 'exagerado' ? '⚠ Exagerado' : tono === 'llamativo' ? '~ Llamativo' : '✓ Sobrio';
+          const safeTitle = titulo.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+          return '<div class="alt-title-item">' +
+            '<div class="alt-title-text">' + titulo + '</div>' +
+            '<div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">' +
+            (tono ? '<span class="pill ' + tonoCls + '" style="font-size:0.6rem;">' + tonoLabel + '</span>' : '') +
+            '<button class="copy-btn" onclick="copyText(this,\'' + safeTitle + '\')">Copiar</button>' +
+            '</div></div>';
+        }).join('')}
       </div>
     ` : '';
 
@@ -688,7 +715,11 @@
     promptParts += '    {"level":"<bad|warn|ok>","text":"<sugerencia>"},\n';
     promptParts += '    {"level":"<bad|warn|ok>","text":"<sugerencia>"}\n';
     promptParts += '  ],\n';
-    promptParts += '  "alternatives": ["<título alt 1>","<título alt 2>","<título alt 3>"]\n';
+    promptParts += '  "alternatives": [\n';
+    promptParts += '    {"titulo":"<título alt 1>","tono":"<sobrio|llamativo|exagerado>"},\n';
+    promptParts += '    {"titulo":"<título alt 2>","tono":"<sobrio|llamativo|exagerado>"},\n';
+    promptParts += '    {"titulo":"<título alt 3>","tono":"<sobrio|llamativo|exagerado>"}\n';
+    promptParts += '  ]\n';
     promptParts += '}\n\n';
     promptParts += 'Hablá como periodista, no como marketer.';
     const prompt = promptParts;
@@ -708,6 +739,8 @@
 
   async function analyzeNote() {
     const tituloH = document.getElementById('input-nota-h').value.trim();
+    const volanta = document.getElementById('input-nota-volanta').value.trim();
+    const bajada = document.getElementById('input-nota-bajada').value.trim();
     const nota = document.getElementById('input-nota').value.trim();
     const kw = document.getElementById('kw-nota').value.trim();
     if (!nota) { alert('Ingresá el texto de tu nota.'); return; }
@@ -727,9 +760,11 @@
 
     const prompt = `Sos un experto en SEO para medios periodísticos hispanohablantes. Analizá esta nota y devolvé SOLO JSON válido, sin texto extra ni backticks.
 
-IMPORTANTE: El usuario puede marcar subtítulos con ## (H2) o ### (H3) al inicio de la línea, siguiendo la convención Markdown. Detectalos y evaluá su uso, cantidad y distribución en el análisis de estructura.
+IMPORTANTE: El usuario puede marcar subtítulos con ## (H2) o ### (H3) al inicio de la línea, siguiendo la convención Markdown. Detectalos y evaluá su uso, cantidad y distribución.
 
+${volanta ? `Volanta: "${volanta}"` : ''}
 ${tituloH ? `Título: "${tituloH}"` : ''}
+${bajada ? `Bajada: "${bajada}"` : ''}
 ${kw ? `Palabra clave: "${kw}"` : ''}
 Palabras: ${words}
 Texto: """${preview}"""
@@ -745,15 +780,19 @@ JSON requerido:
     {"name":"Subtítulos H2/H3","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},
     {"name":"Legibilidad","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},
     {"name":"Primer párrafo","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},
-    {"name":"SEO técnico","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"}
+    {"name":"SEO técnico","status":"<ok|warn|bad>","detail":"<breve>","value":"<dato>"},
+    ${bajada ? `{"name":"Bajada/Copete","status":"<ok|warn|bad>","detail":"Evaluá si la bajada complementa el título, incluye la keyword y resume bien la nota","value":"<dato>"},` : ''}
+    {"name":"Coherencia volanta-título","status":"<ok|warn|bad>","detail":"Evaluá si la volanta y el título trabajan bien juntos para el SEO y la lectura","value":"<dato>"}
   ],
   "suggestions": [
-    {"level":"<bad|warn|ok>","text":"<sugerencia con <strong>énfasis</strong>>"},
-    {"level":"<bad|warn|ok>","text":"<sugerencia>"},
-    {"level":"<bad|warn|ok>","text":"<sugerencia>"},
-    {"level":"<bad|warn|ok>","text":"<sugerencia>"}
+    {"level":"<bad|warn|ok>","text":"<diagnóstico en <strong>negrita</strong> + solución concreta con ejemplo real>"},
+    {"level":"<bad|warn|ok>","text":"<diagnóstico en <strong>negrita</strong> + solución concreta con ejemplo real>"},
+    {"level":"<bad|warn|ok>","text":"<diagnóstico en <strong>negrita</strong> + solución concreta con ejemplo real>"},
+    {"level":"<bad|warn|ok>","text":"<diagnóstico en <strong>negrita</strong> + solución concreta con ejemplo real>"}
   ]
 }
+
+REGLA PARA SUGERENCIAS: Cada sugerencia DEBE tener dos partes: 1) el diagnóstico en negrita, 2) la solución con un ejemplo concreto aplicado a esta nota. No des diagnósticos sin solución. Ejemplo de formato correcto: "<strong>La keyword no aparece en el primer párrafo.</strong> Agregala en la primera oración: en vez de 'El organismo anunció medidas', escribí 'Las medidas económicas anunciadas hoy por el gobierno...'".
 
 Sé específico. Contexto latinoamericano. Hablá como periodista.`;
 
