@@ -756,7 +756,8 @@
     loading.classList.add('visible');
 
     const words = nota.trim().split(/\s+/).length;
-    const preview = nota.length > 2000 ? nota.substring(0,2000)+'...' : nota;
+    const preview = nota.length > 4000 ? nota.substring(0,4000)+'...' : nota;
+    const safePreview = preview.replace(/`/g, "'").replace(/\\$/g, "USD");
 
     const prompt = `Sos un experto en SEO para medios periodísticos hispanohablantes. Analizá esta nota y devolvé SOLO JSON válido, sin texto extra ni backticks.
 
@@ -767,7 +768,7 @@ ${tituloH ? `Título: "${tituloH}"` : ''}
 ${bajada ? `Bajada: "${bajada}"` : ''}
 ${kw ? `Palabra clave: "${kw}"` : ''}
 Palabras: ${words}
-Texto: """${preview}"""
+Texto: """${safePreview}"""
 
 JSON requerido:
 {
@@ -792,7 +793,7 @@ JSON requerido:
   ]
 }
 
-REGLA PARA SUGERENCIAS: Cada sugerencia DEBE tener dos partes: 1) el diagnóstico en negrita, 2) la solución con un ejemplo concreto aplicado a esta nota. No des diagnósticos sin solución. Ejemplo de formato correcto: "<strong>La keyword no aparece en el primer párrafo.</strong> Agregala en la primera oración: en vez de 'El organismo anunció medidas', escribí 'Las medidas económicas anunciadas hoy por el gobierno...'".
+REGLA PARA SUGERENCIAS: Cada sugerencia DEBE tener dos partes: 1) el diagnóstico en negrita, 2) la solución con un ejemplo concreto aplicado a esta nota. No des diagnósticos sin solución. Ejemplo de formato correcto: "<strong>La keyword no aparece en el primer párrafo.</strong> Agregala en la primera oración: en vez de 'El organismo anunció medidas', escribí 'Las medidas económicas anunciadas hoy por el gobierno...'". NUNCA sugieras que el texto está incompleto o cortado si no hay evidencia textual clara de eso (como una oración que termina a mitad). Si la nota parece corta para SEO, sugerí ampliarla pero sin afirmar que está cortada.
 
 Sé específico. Contexto latinoamericano. Hablá como periodista.`;
 
