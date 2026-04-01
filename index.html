@@ -477,9 +477,9 @@
       </div>
     `).join('');
 
-    const suggestionsHtml = data.suggestions.map(s => `
+    const suggestionsHtml = data.suggestions.filter(s => s.level === 'bad' || s.level === 'warn').map(s => `
       <div class="suggestion-item">
-        <div class="sug-icon ${s.level}">${s.level === 'bad' ? '!' : s.level === 'warn' ? '~' : '✓'}</div>
+        <div class="sug-icon ${s.level}">${s.level === 'bad' ? '!' : '~'}</div>
         <div class="sug-text">${s.text}</div>
       </div>
     `).join('');
@@ -786,10 +786,10 @@ JSON requerido:
     {"name":"Coherencia volanta-título","status":"<ok|warn|bad>","detail":"Evaluá si la volanta y el título trabajan bien juntos para el SEO y la lectura","value":"<dato>"}
   ],
   "suggestions": [
-    {"level":"<bad|warn|ok>","text":"<diagnóstico en <strong>negrita</strong> + solución concreta con ejemplo real>"},
-    {"level":"<bad|warn|ok>","text":"<diagnóstico en <strong>negrita</strong> + solución concreta con ejemplo real>"},
-    {"level":"<bad|warn|ok>","text":"<diagnóstico en <strong>negrita</strong> + solución concreta con ejemplo real>"},
-    {"level":"<bad|warn|ok>","text":"<diagnóstico en <strong>negrita</strong> + solución concreta con ejemplo real>"}
+    {"level":"<bad|warn>","text":"<diagnóstico en <strong>negrita</strong> + solución concreta con ejemplo real>"},
+    {"level":"<bad|warn>","text":"<diagnóstico en <strong>negrita</strong> + solución concreta con ejemplo real>"},
+    {"level":"<bad|warn>","text":"<diagnóstico en <strong>negrita</strong> + solución concreta con ejemplo real>"},
+    {"level":"<bad|warn>","text":"<diagnóstico en <strong>negrita</strong> + solución concreta con ejemplo real>"}
   ]
 }
 
